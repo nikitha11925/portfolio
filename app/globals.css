@@ -1,0 +1,251 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ───────────────────────────────────────────────────────────────
+   DESIGN TOKENS — "Dark Artisan" palette (single source of truth)
+   ─────────────────────────────────────────────────────────────── */
+:root {
+  --color-base: #080808; /* near-black background, majority of all space */
+  --color-surface: #111010; /* cards, sections slightly lifted */
+  --color-border: #2a2520; /* subtle warm dark borders */
+  --color-muted: #5c5248; /* secondary text, labels */
+  --color-cream: #e8e0d5; /* primary text */
+  --color-gold: #c9b99a; /* THE accent — used sparingly */
+  --color-gold-dim: #7c6f5e; /* dimmed gold for secondary accents */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem; /* offset for the fixed nav when jumping to anchors */
+}
+
+body {
+  background-color: var(--color-base);
+  color: var(--color-cream);
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-base);
+}
+
+/* Thin, warm, on-brand scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border: 2px solid var(--color-base);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-dim);
+}
+
+/* ───────────────────────────────────────────────────────────────
+   COMPONENT-LEVEL UTILITIES
+   ─────────────────────────────────────────────────────────────── */
+
+/* Section eyebrow label: `// projects` style */
+.section-label {
+  font-family: var(--font-space-mono), monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-muted);
+}
+
+/* Blinking terminal cursor appended after text */
+.cursor-blink::after {
+  content: "_";
+  margin-left: 0.1em;
+  color: var(--color-gold);
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* SVG noise grain overlay — one real texture, at 3% over the whole site */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background-image: url("/grain.svg");
+  background-repeat: repeat;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+}
+
+/* CSS pixel-art rendering for the avatar */
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Hide the native cursor only on precise pointers when our custom one is active */
+@media (pointer: fine) {
+  body.custom-cursor-active,
+  body.custom-cursor-active * {
+    cursor: none !important;
+  }
+}
+
+/* Soft gold focus ring for keyboard users (accessibility) */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   RETRO TERMINAL HERO — warm CRT-flavoured utilities
+   (all motion below is neutralised by the reduced-motion block)
+   ─────────────────────────────────────────────────────────────── */
+
+/* Warm-gold neon text glow — used on the `echo` tagline */
+.neon-gold {
+  color: var(--color-gold);
+  text-shadow: 0 0 4px rgba(201, 185, 154, 0.55), 0 0 12px rgba(201, 185, 154, 0.4),
+    0 0 28px rgba(201, 185, 154, 0.22);
+}
+
+/* Barely-there neon flicker so the glow feels alive, not static */
+@keyframes neon-flicker {
+  0%,
+  18%,
+  22%,
+  54%,
+  58%,
+  100% {
+    opacity: 1;
+  }
+  20%,
+  56% {
+    opacity: 0.82;
+  }
+}
+.animate-neon-flicker {
+  animation: neon-flicker 7s linear infinite;
+}
+
+/* CRT scanlines — drawn over the portal screen, multiplied onto the image */
+.crt-scanlines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(8, 8, 8, 0) 0px,
+    rgba(8, 8, 8, 0) 2px,
+    rgba(8, 8, 8, 0.3) 3px,
+    rgba(8, 8, 8, 0.3) 4px
+  );
+  mix-blend-mode: multiply;
+}
+
+/* A soft warm bar that sweeps down the screen like a CRT refresh */
+@keyframes crt-sweep {
+  0% {
+    transform: translateY(-130%);
+  }
+  100% {
+    transform: translateY(130%);
+  }
+}
+.crt-shimmer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background-image: linear-gradient(
+    to bottom,
+    rgba(201, 185, 154, 0) 0%,
+    rgba(201, 185, 154, 0.1) 50%,
+    rgba(201, 185, 154, 0) 100%
+  );
+  animation: crt-sweep 5s ease-in-out infinite;
+}
+
+/* The portal's gold halo gently breathes */
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.32;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.06);
+  }
+}
+.animate-breathe {
+  animation: breathe 6s ease-in-out infinite;
+}
+
+/* The pixel-art portrait, warmed to the coffee palette + feathered at the top
+   so it reads as "emerging" from the portal rather than a hard image edge.
+   TUNE: object-position + scale are the two knobs to reframe the face. */
+.portal-img {
+  object-position: 46% 30%;
+  transform: scale(1.32);
+  filter: sepia(0.5) saturate(1.2) contrast(1.05) brightness(1.02) hue-rotate(-10deg);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 7%, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 7%, #000 100%);
+}
+
+/* Speech bubble with a tail that points toward the portal */
+.speech-bubble::after {
+  content: "";
+  position: absolute;
+  top: 34px;
+  right: -8px;
+  width: 15px;
+  height: 15px;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  transform: rotate(-45deg);
+}
+/* On the stacked mobile layout the portal sits below — point the tail down */
+@media (max-width: 1023px) {
+  .speech-bubble::after {
+    top: auto;
+    right: 36px;
+    bottom: -8px;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────
+   REDUCED MOTION — content stays fully visible, motion stops
+   ─────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
