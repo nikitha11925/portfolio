@@ -128,55 +128,49 @@ export default function Hero() {
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
           >
-            {/* Breathing gold halo behind the portal (solid colour + blur — not a
-                background gradient). Extends above the frame so the emerging head
-                sits in warm light rather than against raw black. */}
+            {/* Breathing gold halo behind the TV for depth (solid colour + blur,
+                not a section background). */}
             <div
               aria-hidden
-              className="animate-breathe pointer-events-none absolute -inset-7 -z-10 bg-gold opacity-40 blur-[64px]"
-              style={{ borderRadius: "44% 56% 50% 50% / 60% 60% 40% 40%" }}
+              className="animate-breathe pointer-events-none absolute -inset-6 -z-10 bg-gold opacity-30 blur-[60px]"
             />
 
-            {/* The portal frame */}
+            {/* The neon TV — a 5:4 tube, deliberately SHORTER than the square
+                portrait so she pops out the top. overflow-visible lets her breach
+                the frame; the black screen below stays a retro CRT. */}
             <div
               data-hover
-              className="relative aspect-[4/5] w-[clamp(232px,66vw,300px)] border-2 border-gold bg-surface shadow-[0_0_30px_rgba(201,185,154,0.28),inset_0_0_24px_rgba(201,185,154,0.10)] transition-shadow duration-300 group-hover:shadow-[0_0_50px_rgba(201,185,154,0.45),inset_0_0_28px_rgba(201,185,154,0.16)]"
+              className="neon-frame relative aspect-[5/4] w-[clamp(260px,72vw,340px)] overflow-visible bg-[#050505]"
             >
-              {/* Retro screen status chrome */}
-              <span className="absolute left-2 top-2 z-30 flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-label text-gold/80">
-                <span className="h-1.5 w-1.5 animate-pulse bg-gold" />
-                online
-              </span>
-
-              {/* The pixel-art portrait. The wrapper rises above the frame's top
-                  edge so she appears to emerge from the portal. SWAP: drop a
-                  transparent-background cut-out here for an even cleaner effect. */}
-              <div className="animate-float-y absolute inset-x-0 bottom-0 top-[-9%] overflow-visible">
+              {/* The waving pixel girl. Square box anchored to the TV's base, so
+                  the bottom of the box is the screen floor and her head/headphones
+                  rise above the top edge. */}
+              <div className="animate-float-y absolute inset-x-0 bottom-0 z-10 aspect-square">
                 <Image
-                  src="/pixel.jpeg"
-                  alt="Pixel-art portrait of Nikitha"
+                  src="/pixel2.png"
+                  alt="Pixel-art portrait of Nikitha waving"
                   fill
                   priority
-                  sizes="(max-width: 1024px) 66vw, 300px"
-                  className="portal-img select-none object-cover"
+                  sizes="(max-width: 1024px) 72vw, 340px"
+                  className="portal-screen-img select-none object-contain"
                 />
               </div>
 
-              {/* Scanlines + sweeping shimmer — clipped to the screen so the
-                  emerged head (above the frame) stays clean. */}
+              {/* Scanlines + sweeping shimmer — clipped to the screen, so the
+                  popped-out head above the frame stays clean. */}
               <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
                 <div className="crt-scanlines absolute inset-0" />
                 <div className="crt-shimmer" />
               </div>
 
-              {/* Corner ticks for the retro-monitor feel */}
-              <span className="pointer-events-none absolute -left-px -top-px z-30 h-3 w-3 border-l-2 border-t-2 border-gold" />
-              <span className="pointer-events-none absolute -right-px -top-px z-30 h-3 w-3 border-r-2 border-t-2 border-gold" />
-              <span className="pointer-events-none absolute -bottom-px -left-px z-30 h-3 w-3 border-b-2 border-l-2 border-gold" />
-              <span className="pointer-events-none absolute -bottom-px -right-px z-30 h-3 w-3 border-b-2 border-r-2 border-gold" />
+              {/* Retro power indicator */}
+              <span className="absolute bottom-2 right-3 z-30 flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-label text-gold/70">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold" />
+                on air
+              </span>
             </div>
 
-            {/* Hobby cards fan out around the portal on hover */}
+            {/* Hobby cards fan out around the TV on hover */}
             <HobbyTooltips show={hovered} />
 
             <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-label text-muted">

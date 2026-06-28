@@ -200,15 +200,25 @@ body {
   animation: breathe 6s ease-in-out infinite;
 }
 
-/* The pixel-art portrait, warmed to the coffee palette + feathered at the top
-   so it reads as "emerging" from the portal rather than a hard image edge.
-   TUNE: object-position + scale are the two knobs to reframe the face. */
-.portal-img {
-  object-position: 46% 30%;
-  transform: scale(1.32);
-  filter: sepia(0.5) saturate(1.2) contrast(1.05) brightness(1.02) hue-rotate(-10deg);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 7%, #000 100%);
-  mask-image: linear-gradient(to bottom, transparent 0%, #000 7%, #000 100%);
+/* Neon gold "tube" frame for the retro TV portal. The last inset shadow is the
+   CRT vignette that darkens the screen toward its edges. */
+.neon-frame {
+  border: 2px solid var(--color-gold);
+  box-shadow: 0 0 2px rgba(201, 185, 154, 0.9), 0 0 10px rgba(201, 185, 154, 0.65),
+    0 0 26px rgba(201, 185, 154, 0.4), 0 0 54px rgba(201, 185, 154, 0.22),
+    inset 0 0 14px rgba(201, 185, 154, 0.22), inset 0 0 70px 8px rgba(0, 0, 0, 0.85);
+  transition: box-shadow 0.35s ease;
+}
+.group:hover .neon-frame {
+  box-shadow: 0 0 3px rgba(201, 185, 154, 1), 0 0 14px rgba(201, 185, 154, 0.8),
+    0 0 36px rgba(201, 185, 154, 0.52), 0 0 72px rgba(201, 185, 154, 0.3),
+    inset 0 0 16px rgba(201, 185, 154, 0.3), inset 0 0 70px 8px rgba(0, 0, 0, 0.85);
+}
+
+/* The transparent waving portrait that pops out of the TV. A subtle gold glow
+   ties her silhouette to the neon frame; colours are left mostly natural. */
+.portal-screen-img {
+  filter: contrast(1.04) saturate(1.06) drop-shadow(0 0 7px rgba(201, 185, 154, 0.4));
 }
 
 /* Speech bubble with a tail that points toward the portal */
