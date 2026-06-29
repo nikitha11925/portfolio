@@ -72,11 +72,19 @@ export default function ProjectCard({ project }: { project: Project }) {
       <p className="mt-5 font-mono text-sm text-gold">▸ {project.highlight}</p>
 
       <div className="mt-6 flex items-center gap-5 border-t border-border pt-5">
-        <ExternalLink
-          href={project.live}
-          label="Live"
-          icon={<ArrowUpRight className="h-3.5 w-3.5" />}
-        />
+        {!isPlaceholder(project.live) ? (
+          <ExternalLink
+            href={project.live}
+            label="Live"
+            icon={<ArrowUpRight className="h-3.5 w-3.5" />}
+          />
+        ) : (
+          <ExternalLink
+            href={project.github}
+            label="Video demo"
+            icon={<ArrowUpRight className="h-3.5 w-3.5" />}
+          />
+        )}
         <ExternalLink
           href={project.github}
           label="GitHub"

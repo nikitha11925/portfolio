@@ -27,13 +27,13 @@ function SocialLink({ href, label }: { href: string; label: string }) {
 
 export default function Contact() {
   return (
-    <section id="contact" className="mx-auto max-w-6xl px-6 py-32 text-center">
+    <section id="contact" className="mx-auto max-w-6xl px-6 py-32 sm:px-10 lg:px-16">
       <Reveal>
-        <h2 className="font-serif text-[clamp(2.5rem,7vw,4.5rem)] italic text-cream">
+        <h2 className="font-sans text-[clamp(2.5rem,7vw,4.5rem)] font-bold tracking-tight text-cream">
           Let&apos;s build something.
         </h2>
 
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+        <div className="mt-10 flex flex-wrap items-center justify-start gap-4">
           <a
             href={`mailto:${contact.email}`}
             data-hover

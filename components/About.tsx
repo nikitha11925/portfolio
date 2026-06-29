@@ -1,51 +1,13 @@
-"use client";
-
-import { motion } from "framer-motion";
 import SectionLabel from "@/components/SectionLabel";
 import Reveal from "@/components/Reveal";
-import { bio, characterCard } from "@/data/portfolio";
-
-function StatBar({
-  label,
-  value,
-  note,
-  index,
-}: {
-  label: string;
-  value: number | null;
-  note?: string;
-  index: number;
-}) {
-  // `value === null` is the "Math — returning" case: a quiet, partial, dashed bar.
-  const isReturning = value === null;
-  const pct = isReturning ? 35 : value;
-
-  return (
-    <div className="flex items-center gap-3">
-      <span className="w-24 shrink-0 font-mono text-[11px] text-muted">{label}</span>
-      <div className="relative h-2 flex-1 bg-base">
-        <motion.div
-          className={isReturning ? "h-full bg-gold-dim/60" : "h-full bg-gold"}
-          style={isReturning ? { backgroundImage: "repeating-linear-gradient(90deg, var(--color-gold-dim) 0 4px, transparent 4px 8px)" } : undefined}
-          initial={{ width: 0 }}
-          whileInView={{ width: `${pct}%` }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.8, delay: 0.1 + index * 0.08, ease: "easeOut" }}
-        />
-      </div>
-      <span className="w-20 shrink-0 text-right font-mono text-[11px] text-gold">
-        {isReturning ? note : value}
-      </span>
-    </div>
-  );
-}
+import { bio, education } from "@/data/portfolio";
 
 export default function About() {
   return (
-    <section id="about" className="mx-auto max-w-6xl px-6 py-28">
+    <section id="about" className="mx-auto max-w-6xl px-6 py-28 sm:px-10 lg:px-16">
       <SectionLabel>about</SectionLabel>
 
-      <div className="grid gap-12 lg:grid-cols-[3fr_2fr] lg:gap-16">
+      <div className="grid gap-12 lg:grid-cols-[1.7fr_1fr] lg:gap-16">
         {/* Bio */}
         <Reveal>
           <div className="space-y-6">
@@ -64,37 +26,21 @@ export default function About() {
           </div>
         </Reveal>
 
-        {/* RPG character card */}
+        {/* Education — glowing card, pushed to the right */}
         <Reveal delay={0.1}>
-          <div className="border border-border bg-surface p-6 font-mono">
-            <div className="border-b border-border pb-4">
-              <p className="text-lg text-cream">{characterCard.name}</p>
-              <p className="text-[11px] uppercase tracking-label text-gold-dim">
-                {characterCard.subtitle}
-              </p>
-            </div>
-
-            <dl className="grid grid-cols-2 gap-y-2 border-b border-border py-4 text-xs">
-              {characterCard.meta.map((m) => (
-                <div key={m.label} className="flex flex-col">
-                  <dt className="text-muted">{m.label}</dt>
-                  <dd className="text-cream">{m.value}</dd>
-                </div>
-              ))}
-            </dl>
-
-            <p className="py-4 text-[11px] uppercase tracking-label text-muted">
-              core stats
+          <div className="education-card lg:ml-auto lg:max-w-sm">
+            <p className="mb-5 font-mono text-[11px] uppercase tracking-label text-gold-dim">
+              education
             </p>
-            <div className="space-y-3 pb-1">
-              {characterCard.stats.map((s, i) => (
-                <StatBar
-                  key={s.label}
-                  label={s.label}
-                  value={s.value}
-                  note={"note" in s ? (s.note as string) : undefined}
-                  index={i}
-                />
+            <div className="space-y-6">
+              {education.map((e) => (
+                <div key={e.school}>
+                  <h3 className="font-medium leading-snug text-cream">{e.school}</h3>
+                  <p className="mt-0.5 text-sm text-muted">{e.location}</p>
+                  <p className="mt-2 text-sm text-cream/90">{e.degree}</p>
+                  <p className="mt-1 font-mono text-[11px] text-muted">{e.period}</p>
+                  <p className="mt-1 font-mono text-sm text-gold">{e.score}</p>
+                </div>
               ))}
             </div>
           </div>

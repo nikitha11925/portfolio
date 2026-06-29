@@ -25,7 +25,6 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-space-grotesk)", "system-ui", "sans-serif"],
         mono: ["var(--font-space-mono)", "ui-monospace", "monospace"],
-        serif: ["var(--font-instrument-serif)", "Georgia", "serif"],
       },
       letterSpacing: {
         label: "0.1em",

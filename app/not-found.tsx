@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <section className="flex min-h-[100svh] flex-col items-center justify-center px-6 text-center">
       <p className="font-mono text-sm text-gold-dim">404 — not found</p>
-      <h1 className="mt-4 font-serif text-[clamp(3rem,10vw,6rem)] italic text-cream">
+      <h1 className="mt-4 font-sans text-[clamp(3rem,10vw,6rem)] font-bold tracking-tight text-cream">
         Lost the thread.
       </h1>
       <p className="mt-4 max-w-md font-mono text-sm text-muted">

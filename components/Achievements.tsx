@@ -1,36 +1,17 @@
+import Image from "next/image";
 import SectionLabel from "@/components/SectionLabel";
 import Reveal from "@/components/Reveal";
-import CountUp from "@/components/CountUp";
-import { stats, achievements } from "@/data/portfolio";
+import { achievements } from "@/data/portfolio";
 
 export default function Achievements() {
   return (
-    <section id="achievements" className="mx-auto max-w-6xl px-6 py-28">
+    <section id="achievements" className="mx-auto max-w-6xl px-6 py-28 sm:px-10 lg:px-16">
       <SectionLabel>achievements</SectionLabel>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-2 gap-px border border-border bg-border md:grid-cols-4">
-        {stats.map((stat) => (
-          <div key={stat.label} className="bg-surface px-5 py-8 text-center">
-            <p className="font-serif text-4xl italic text-gold sm:text-5xl">
-              {stat.value === null ? (
-                stat.display
-              ) : (
-                <CountUp value={stat.value} decimals={stat.decimals ?? 0} />
-              )}
-            </p>
-            <p className="mt-3 font-mono text-[11px] uppercase tracking-label text-muted">
-              {stat.label}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* Achievement badge cards */}
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         {achievements.map((a, i) => (
-          <Reveal key={a.title} delay={i * 0.05}>
-            <div className="group h-full border border-border bg-surface p-6 transition-all duration-300 hover:border-gold/40 hover:shadow-[inset_0_0_30px_rgba(201,185,154,0.06)]">
+          <Reveal key={a.title} delay={i * 0.05} className={a.wide ? "sm:col-span-2" : undefined}>
+            <div className="group flex h-full flex-col border border-border bg-surface p-6 transition-all duration-300 hover:border-gold/40 hover:shadow-[inset_0_0_30px_rgba(201,185,154,0.06)]">
               <div className="flex items-start gap-4">
                 <span className="text-2xl leading-none">{a.icon}</span>
                 <div>
@@ -44,6 +25,41 @@ export default function Achievements() {
                   <p className="mt-2 text-sm leading-relaxed text-muted">{a.detail}</p>
                 </div>
               </div>
+
+              {/* Proof image (certificate) — click to open full size */}
+              {a.image && (
+                <a
+                  href={a.image}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group/img mt-5 block overflow-hidden border border-border bg-base"
+                >
+                  <span className="relative block aspect-[3/2] w-full">
+                    <Image
+                      src={a.image}
+                      alt={`${a.title} certificate`}
+                      fill
+                      sizes="(max-width: 640px) 90vw, 540px"
+                      className="object-contain transition-transform duration-300 group-hover/img:scale-[1.02]"
+                    />
+                  </span>
+                  <span className="block border-t border-border px-3 py-2 font-mono text-[10px] uppercase tracking-label text-muted transition-colors group-hover/img:text-gold">
+                    View certificate ↗
+                  </span>
+                </a>
+              )}
+
+              {/* Research paper — embedded + scrollable within the card */}
+              {a.pdf && (
+                <div className="mt-5">
+                  <p className="mb-2 font-mono text-[10px] uppercase tracking-label text-muted">
+                    paper
+                  </p>
+                  <div className="h-[480px] w-full overflow-hidden border border-border bg-base">
+                    <iframe src={a.pdf} title={a.title} className="h-full w-full" />
+                  </div>
+                </div>
+              )}
             </div>
           </Reveal>
         ))}

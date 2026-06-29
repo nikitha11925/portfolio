@@ -2,7 +2,7 @@
   "name": "nikitha-portfolio",
   "version": "1.0.0",
   "private": true,
-  "description": "Personal portfolio of Nikitha D — full-stack developer, ML tinkerer, fashion designer, maker.",
+  "description": "Personal portfolio of Nikitha D — full-stack developer and machine learning engineer.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

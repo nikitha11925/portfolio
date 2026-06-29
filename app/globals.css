@@ -9,7 +9,7 @@
   --color-base: #080808; /* near-black background, majority of all space */
   --color-surface: #111010; /* cards, sections slightly lifted */
   --color-border: #2a2520; /* subtle warm dark borders */
-  --color-muted: #5c5248; /* secondary text, labels */
+  --color-muted: #9a8d78; /* secondary text, labels — brightened for low-light screens */
   --color-cream: #e8e0d5; /* primary text */
   --color-gold: #c9b99a; /* THE accent — used sparingly */
   --color-gold-dim: #7c6f5e; /* dimmed gold for secondary accents */
@@ -104,14 +104,6 @@ body {
   image-rendering: crisp-edges;
 }
 
-/* Hide the native cursor only on precise pointers when our custom one is active */
-@media (pointer: fine) {
-  body.custom-cursor-active,
-  body.custom-cursor-active * {
-    cursor: none !important;
-  }
-}
-
 /* Soft gold focus ring for keyboard users (accessibility) */
 :focus-visible {
   outline: 2px solid var(--color-gold);
@@ -149,39 +141,27 @@ body {
   animation: neon-flicker 7s linear infinite;
 }
 
-/* CRT scanlines — drawn over the portal screen, multiplied onto the image */
-.crt-scanlines {
+/* Retro scanlines that sit over the WHOLE portrait (incl. the popped-out head),
+   masked by the PNG's own alpha so the lines only land on the non-transparent
+   pixels — never on the transparent background or the black screen. */
+.retro-lines {
   background-image: repeating-linear-gradient(
     to bottom,
-    rgba(8, 8, 8, 0) 0px,
-    rgba(8, 8, 8, 0) 2px,
-    rgba(8, 8, 8, 0.3) 3px,
-    rgba(8, 8, 8, 0.3) 4px
+    rgba(0, 0, 0, 0) 0px,
+    rgba(0, 0, 0, 0) 1px,
+    rgba(0, 0, 0, 0.5) 2px,
+    rgba(0, 0, 0, 0.5) 3px
   );
   mix-blend-mode: multiply;
-}
-
-/* A soft warm bar that sweeps down the screen like a CRT refresh */
-@keyframes crt-sweep {
-  0% {
-    transform: translateY(-130%);
-  }
-  100% {
-    transform: translateY(130%);
-  }
-}
-.crt-shimmer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 45%;
-  background-image: linear-gradient(
-    to bottom,
-    rgba(201, 185, 154, 0) 0%,
-    rgba(201, 185, 154, 0.1) 50%,
-    rgba(201, 185, 154, 0) 100%
-  );
-  animation: crt-sweep 5s ease-in-out infinite;
+  opacity: 0.6;
+  -webkit-mask-image: url("/pixel2.png");
+  mask-image: url("/pixel2.png");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 /* The portal's gold halo gently breathes */
@@ -209,16 +189,42 @@ body {
     inset 0 0 14px rgba(201, 185, 154, 0.22), inset 0 0 70px 8px rgba(0, 0, 0, 0.85);
   transition: box-shadow 0.35s ease;
 }
-.group:hover .neon-frame {
-  box-shadow: 0 0 3px rgba(201, 185, 154, 1), 0 0 14px rgba(201, 185, 154, 0.8),
-    0 0 36px rgba(201, 185, 154, 0.52), 0 0 72px rgba(201, 185, 154, 0.3),
-    inset 0 0 16px rgba(201, 185, 154, 0.3), inset 0 0 70px 8px rgba(0, 0, 0, 0.85);
-}
-
 /* The transparent waving portrait that pops out of the TV. A subtle gold glow
    ties her silhouette to the neon frame; colours are left mostly natural. */
 .portal-screen-img {
   filter: contrast(1.04) saturate(1.06) drop-shadow(0 0 7px rgba(201, 185, 154, 0.4));
+}
+
+/* ── Raining tech-icon background (IconWall) ── */
+.icon-wall {
+  overflow: hidden;
+  /* Fade the rain in/out at the top and bottom edges */
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+}
+
+/* Each icon stays BLACK; the neon outline (crisp cream edge + warm gold glow,
+   matching the TV frame) is what makes the black logo readable on the dark base. */
+.rain-drop {
+  position: absolute;
+  top: 0;
+  object-fit: contain;
+  will-change: transform;
+  animation-name: rain-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  filter: drop-shadow(1px 0 0 var(--color-cream)) drop-shadow(-1px 0 0 var(--color-cream))
+    drop-shadow(0 1px 0 var(--color-cream)) drop-shadow(0 -1px 0 var(--color-cream))
+    drop-shadow(0 0 4px var(--color-gold)) drop-shadow(0 0 9px rgba(201, 185, 154, 0.55));
+}
+
+@keyframes rain-fall {
+  from {
+    transform: translateY(-18vh);
+  }
+  to {
+    transform: translateY(118vh);
+  }
 }
 
 /* Speech bubble with a tail that points toward the portal */
@@ -241,6 +247,48 @@ body {
     right: 36px;
     bottom: -8px;
   }
+}
+
+/* Education card — a softly glowing rectangle (echoes the hero TV frame) */
+.education-card {
+  border: 1px solid var(--color-gold);
+  background: var(--color-surface);
+  padding: 1.75rem;
+  box-shadow: 0 0 2px rgba(201, 185, 154, 0.5), 0 0 14px rgba(201, 185, 154, 0.22),
+    0 0 32px rgba(201, 185, 154, 0.12), inset 0 0 22px rgba(201, 185, 154, 0.06);
+}
+
+/* Hobbies — a horizontal strip the visitor scrolls at their own pace.
+   Images keep their original aspect ratio (fixed height, auto width, no crop). */
+.hobby-scroller {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  cursor: grab;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox — hide the scrollbar */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 3%, #000 97%, transparent);
+}
+.hobby-scroller.hobby-grabbing {
+  cursor: grabbing;
+}
+.hobby-scroller::-webkit-scrollbar {
+  display: none; /* Chrome/Safari — hide the scrollbar */
+}
+.hobby-item {
+  height: 130px;
+  width: auto;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  object-fit: contain; /* show the whole image, never crop the corners */
+  user-select: none; /* so click-drag scrolls instead of selecting the image */
+  background: var(--color-base);
+  border: 1px solid var(--color-gold);
+  border-radius: 4px;
+  box-shadow: 0 0 8px rgba(201, 185, 154, 0.6), 0 0 20px rgba(201, 185, 154, 0.4),
+    0 0 36px rgba(201, 185, 154, 0.22);
 }
 
 /* ───────────────────────────────────────────────────────────────

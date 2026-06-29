@@ -1,11 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Space_Mono, Instrument_Serif } from "next/font/google";
+import { Space_Grotesk, Space_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import Navbar from "@/components/Navbar";
-import CustomCursor from "@/components/CustomCursor";
-// Footer is set aside while the landing page is just navbar + hero + placeholders.
-// import Footer from "@/components/Footer";
+import Footer from "@/components/Footer";
 
 // Body / UI
 const spaceGrotesk = Space_Grotesk({
@@ -22,25 +20,16 @@ const spaceMono = Space_Mono({
   display: "swap",
 });
 
-// Display / accent
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-  variable: "--font-instrument-serif",
-  display: "swap",
-});
-
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nikithad.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Nikitha D — Full-Stack Developer · ML · Maker",
+    default: "Nikitha D — Full-Stack Developer · Machine Learning",
     template: "%s · Nikitha D",
   },
   description:
-    "Portfolio of Nikitha D — a second-year CS engineer in Bangalore who builds full-stack systems, trains ML models, designs dresses, and solders jewellery.",
+    "Portfolio of Nikitha D — a final-year Computer Science engineering student in Bangalore building full-stack web applications and machine learning systems, with published applied-ML research.",
   keywords: [
     "Nikitha D",
     "portfolio",
@@ -56,16 +45,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: siteUrl,
-    title: "Nikitha D — Full-Stack Developer · ML · Maker",
+    title: "Nikitha D — Full-Stack Developer · Machine Learning",
     description:
-      "Full-stack systems, ML models, dresses, and jewellery. Built by someone who debugs at 2am.",
+      "Final-year CS engineer building full-stack web applications and machine learning systems, with published applied-ML research.",
     siteName: "Nikitha D",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nikitha D — Full-Stack Developer · ML · Maker",
+    title: "Nikitha D — Full-Stack Developer · Machine Learning",
     description:
-      "Full-stack systems, ML models, dresses, and jewellery. Built by someone who debugs at 2am.",
+      "Final-year CS engineer building full-stack web applications and machine learning systems, with published applied-ML research.",
   },
   robots: { index: true, follow: true },
 };
@@ -82,16 +71,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${spaceGrotesk.variable} ${spaceMono.variable} ${instrumentSerif.variable}`}
+      className={`${spaceGrotesk.variable} ${spaceMono.variable}`}
     >
       <body className="bg-base text-cream antialiased">
         <Providers>
-          {/* Decorative texture + custom cursor sit above content but never block it */}
+          {/* Decorative grain texture sits above content but never blocks it */}
           <div className="grain-overlay" aria-hidden="true" />
-          <CustomCursor />
           <Navbar />
           <main>{children}</main>
-          {/* <Footer /> */}
+          <Footer />
         </Providers>
       </body>
     </html>

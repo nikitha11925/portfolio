@@ -2,9 +2,8 @@
  * ─────────────────────────────────────────────────────────────────────────
  *  SINGLE SOURCE OF TRUTH FOR ALL PORTFOLIO CONTENT
  * ─────────────────────────────────────────────────────────────────────────
- *  Nikitha: edit everything here. Anything marked "YOUR_..." or "#" shows up
- *  in the UI as a small gold [add link] badge until you replace it.
- *  See the SWAP / TODO comments for assets that live elsewhere.
+ *  Nikitha: edit everything here. Anything marked "YOUR_..." shows up in the
+ *  UI as a small gold [add link] badge until you replace it.
  */
 
 export interface CaseStudy {
@@ -12,7 +11,6 @@ export interface CaseStudy {
   build: string[];
   interesting: string;
   results: { value: string; label: string }[];
-  /* TODO: drop a screenshot/mockup into /public and reference it here */
   screenshot?: string;
 }
 
@@ -33,61 +31,101 @@ export const projects: Project[] = [
   {
     slug: "circleup",
     title: "CircleUp",
-    type: "Social Platform",
+    type: "Skill-Exchange Platform",
     description:
-      "A social app that matches user profiles using keyword analysis and AI — built for people who want to find their people, not just followers.",
-    stack: ["React.js", "Spring Boot", "Python", "ML", "MySQL"],
-    live: "YOUR_LIVE_LINK",
-    github: "YOUR_GITHUB_LINK",
-    highlight: "AI-powered profile matching",
+      "A community skill-exchange platform — teach what you know, learn what you don't. An AI matchmaker finds the best mutual exchange between members: you teach someone React, they teach you video editing. Real community, real value, zero money involved.",
+    stack: ["Spring Boot", "React", "PostgreSQL", "Redis", "Gemini API", "WebSocket"],
+    live: "https://frontend-qq1ke9zsg-nc-oder.vercel.app/",
+    github: "https://github.com/nikitha11925/circleup",
+    highlight: "AI-matched mutual skill exchange",
     color: "#c9b99a",
     caseStudy: {
+      screenshot: "/circleupSS.png",
       problem:
-        "Social networks optimise for follower counts, not for fit. Finding people who genuinely share your interests and goals is left to luck and endless scrolling.",
+        "People post skills they can teach (guitar, DSA, Figma, cooking) and skills they want to learn. The hard part is finding the best mutual exchange — pairing someone who can teach you React with someone who wants what you know — at real community scale, with no money changing hands.",
       build: [
-        "React.js front-end with a focused, low-friction onboarding flow.",
-        "Spring Boot REST API handling auth, profiles and the matching pipeline.",
-        "A Python ML service that runs keyword analysis over free-text profiles.",
-        "MySQL for durable profile and relationship storage.",
-        "A scoring engine that ranks profile similarity rather than relying on naive tag overlap.",
+        "AI matching engine — sends both user profiles and skill lists to Gemini and gets back a compatibility score with a reason. Cached in Redis so the API isn't hit on every page load (a RAG-lite pattern).",
+        "Real-time session chat — WebSocket rooms per matched pair using Spring + STOMP, messages persisted to PostgreSQL, with Redis pub/sub for horizontal scaling.",
+        "Session scheduling with conflict detection — booking a one-hour slot checks both users' calendars to prevent double-booking, enforced at the database level with row-level locking.",
+        "Reputation system — both users rate each other after a session and the score affects future match priority; ratings update asynchronously so the main flow never blocks (eventual consistency).",
       ],
       interesting:
-        "The matching engine. Two people often describe themselves with completely different words while meaning the same thing. Instead of matching on exact tags, CircleUp does keyword analysis and scores semantic closeness — so the match is about substance, not vocabulary.",
+        "The matching engine. Instead of naive tag overlap, CircleUp sends both profiles and skill lists to Gemini and gets back a compatibility score and a human-readable reason — cached in Redis to keep it fast. A lightweight RAG-style approach to a genuine matchmaking problem.",
       results: [
-        { value: "AI", label: "Keyword-based matching" },
-        { value: "Full-stack", label: "React + Spring + Python" },
-        { value: "[add metric]", label: "Users / engagement" },
+        { value: "Gemini", label: "AI compatibility scoring" },
+        { value: "Real-time", label: "WebSocket session chat" },
+        { value: "Redis", label: "Caching + pub/sub scaling" },
       ],
     },
   },
   {
     slug: "pulsegate",
     title: "PulseGate",
-    type: "Backend / Systems",
+    type: "Backend / Distributed Systems",
     description:
-      "A job queue simulation and backend architecture project — engineered for performance, built to understand what happens under the hood when systems scale.",
-    stack: ["Java", "Spring Boot", "MySQL", "System Design"],
-    live: "YOUR_LIVE_LINK",
-    github: "YOUR_GITHUB_LINK",
-    highlight: "Queue simulation engine",
+      "A background job processing engine. Any service can push a job (send email, resize image, generate report); PulseGate picks it up, routes it to the right worker, retries on failure, tracks status, and surfaces a live dashboard — the kind of infrastructure every company runs but few build from scratch.",
+    stack: [
+      "Spring WebFlux",
+      "Redis Streams",
+      "PostgreSQL",
+      "Docker",
+      "Kubernetes",
+      "Helm",
+      "Prometheus",
+      "Grafana",
+      "GitHub Actions",
+    ],
+    live: "https://pulsegate-tau.vercel.app/",
+    github: "https://github.com/nikitha11925/PulseGate",
+    highlight: "Autoscaling queue with full observability",
     color: "#9a8570",
     caseStudy: {
+      screenshot: "/PulseGateSS.png",
       problem:
-        "Background work — sending email, resizing images, generating reports, firing webhooks — can't block the request path. You need a system that accepts jobs instantly and processes them reliably, even when individual jobs fail or a worker dies mid-task.",
+        "Background work — sending email, resizing images, generating reports — can't block the request path. You need a system that accepts jobs instantly and processes them reliably, even when individual jobs fail or a worker dies mid-task.",
       build: [
-        "A producer that persists each job and enqueues it, returning to the caller immediately.",
-        "A worker pool that pulls jobs with a bounded concurrency limit — the backpressure that keeps the system stable under load.",
-        "An exponential backoff retry policy (5s → 25s → 125s, max 3 attempts).",
-        "A dead-letter path so permanently failed jobs are captured, never silently dropped.",
-        "A reclaimer that detects jobs stuck on crashed workers and requeues them.",
-        "Live metrics: queue depth, throughput, processing latency and dead-letter counts.",
+        "Redis Streams as the queue backbone — real consumer groups with acknowledgement, not a simple list. If a worker crashes mid-job, pending entries are reclaimed and retried, exactly how production queues work.",
+        "Exponential backoff retry — failed jobs wait 5s, 25s, then 125s before retry; after max attempts they move to a dead-letter queue (the pattern Celery, Sidekiq and BullMQ use internally).",
+        "Worker autoscaling — a Kubernetes HPA scales worker pods on a queue-depth metric exported to Prometheus, so workers spin up automatically as the queue grows.",
+        "Reactive core (Spring WebFlux) — the dispatcher handles thousands of job-status polls without blocking, with backpressure built in.",
+        "Full observability — jobs processed/sec, queue depth, worker saturation and p99 processing time, all on a Grafana dashboard.",
       ],
       interesting:
-        "Backpressure. The naive version grabs every available job at once and falls over under load. Capping concurrency means the engine degrades gracefully instead of crashing. Wiring the retry → dead-letter → reclaim loop so that no job is ever lost — even when a worker dies holding one — was the real systems puzzle.",
+        "Building queue mechanics the way real production systems do — Redis Streams consumer groups with acknowledgement and reclaim, exponential-backoff retries into a dead-letter queue, and a Kubernetes HPA autoscaling workers on live queue-depth metrics.",
       results: [
-        { value: "Exponential", label: "Backoff retries (max 3)" },
-        { value: "Bounded", label: "Concurrency / backpressure" },
-        { value: "Zero", label: "Silently dropped jobs" },
+        { value: "Redis Streams", label: "Consumer groups + reclaim" },
+        { value: "K8s HPA", label: "Queue-depth autoscaling" },
+        { value: "WebFlux", label: "Non-blocking dispatcher" },
+      ],
+    },
+  },
+  {
+    slug: "paradecast",
+    title: "ParadeCast",
+    type: "Geospatial / ML Web App",
+    description:
+      "Geospatial Activity Intelligence — a web platform that uses machine learning to provide location-specific activity recommendations from global geospatial data. Pick any coordinate and get a tailored list of things to do.",
+    stack: ["React.js", "JavaScript", "Google Maps API", "REST APIs", "ML Engine"],
+    live: "YOUR_LIVE_LINK",
+    github: "https://github.com/nikitha11925/ParadeCast",
+    highlight: "ML-driven location activity recommendations",
+    color: "#a09080",
+    caseStudy: {
+      screenshot: "/paradecast.png",
+      problem:
+        "Given any point on the globe, what should you actually do there? ParadeCast turns raw geospatial and location data into tailored activity recommendations — tourism, adventure, logistics — for any coordinate.",
+      build: [
+        "Dynamic mapping with the Google Maps SDK — users select any coordinate on a global scale (Maps, Places, Geocoding).",
+        "A bridge between the React front-end and an ML-based analysis engine over RESTful APIs.",
+        "Contextual insights — a tailored activity list based on analysed terrain and location data.",
+        "Optimised deployment with environment variables and API keys configured for secure communication.",
+      ],
+      interesting:
+        "The ML bridge. The front-end captures any coordinate via Google Maps and hands it to an ML analysis engine over REST, turning terrain and location data into a ranked, contextual list of activities.",
+      results: [
+        { value: "Google Maps", label: "Global coordinate selection" },
+        { value: "ML", label: "Activity analysis engine" },
+        { value: "REST", label: "Frontend ↔ ML bridge" },
       ],
     },
   },
@@ -96,127 +134,112 @@ export const projects: Project[] = [
     title: "MediTrak",
     type: "Android App",
     description:
-      "A high-contrast medication tracker for Alzheimer's patients. Minimalistic UI that reduced navigation errors by 40% in usability testing. Built with empathy first.",
-    stack: ["Android Studio", "Java", "SQLite", "AlarmManager"],
+      "An Android medication reminder app that helps users manage and track daily medications through smart scheduling and timely notifications — fully offline-first, with no internet required.",
+    stack: ["Java", "Android Studio", "SQLite", "AlarmManager", "XML"],
     live: "YOUR_LIVE_LINK",
-    github: "YOUR_GITHUB_LINK",
-    highlight: "40% reduction in navigation errors",
+    github: "https://github.com/nikitha11925/MediTrack",
+    highlight: "Offline-first medication reminders",
     color: "#b8a898",
     caseStudy: {
+      screenshot: "/meditrak.png",
       problem:
-        "Alzheimer's patients miss medications because typical app UIs ask too much of them — too many taps, low contrast, and flows that assume short-term memory the user may not have.",
+        "Daily medications are easy to forget, and many reminder apps assume a constant network connection. The app needed reliable, on-time reminders that work entirely offline.",
       build: [
-        "Native Android app written in Java in Android Studio.",
-        "A high-contrast, minimalist UI with large touch targets and one clear action per screen.",
-        "SQLite for fully offline, local-first storage.",
-        "AlarmManager for reliable medication reminders that fire even without a network.",
+        "Native Android app in Java (Android Studio) with an MVC architecture and XML layouts.",
+        "Add medications with name, dosage and notes, plus flexible daily, weekly or custom schedules.",
+        "AlarmManager + NotificationManager for push reminders that fire at the exact dose time, even offline.",
+        "Dose logging (taken / skipped / missed) with full history tracking, backed by local SQLite storage.",
       ],
       interesting:
-        "Designing for cognitive load instead of aesthetics. Every button removed was a usability win. Usability testing showed the empathy-first approach cut navigation errors by 40% — proof that restraint is a feature.",
+        "Offline-first reliability. With all data in local SQLite and reminders driven by AlarmManager + NotificationManager, the app delivers on-time alerts and a complete dose history without ever needing the network.",
       results: [
-        { value: "40%", label: "Fewer navigation errors" },
-        { value: "Offline", label: "AlarmManager reminders" },
-        { value: "High-contrast", label: "Accessibility-first UI" },
-      ],
-    },
-  },
-  {
-    slug: "paradecast",
-    title: "ParadeCast",
-    type: "Cross-Platform App",
-    description:
-      "Cross-platform web and mobile app with a custom ML engine bridge. 90% code reusability between web and mobile. Location-to-analysis latency cut by 20%.",
-    stack: ["React.js", "Capacitor", "Google Maps API", "ML"],
-    live: "YOUR_LIVE_LINK",
-    github: "YOUR_GITHUB_LINK",
-    highlight: "90% cross-platform code reuse",
-    color: "#a09080",
-    caseStudy: {
-      problem:
-        "Building the same product twice — once for web, once for mobile — wastes time and splits the codebase into two things that drift apart.",
-      build: [
-        "A single React.js codebase shipped to web and native mobile via Capacitor.",
-        "Google Maps API for location capture and visualisation.",
-        "A custom bridge to an ML engine so both platforms share one analysis path.",
-        "Pipeline tuning that trimmed the location-to-analysis round trip.",
-      ],
-      interesting:
-        "The ML engine bridge. By routing both web and mobile through one shared analysis path, ParadeCast hit 90% code reuse and shaved 20% off location-to-analysis latency — one brain, two front doors.",
-      results: [
-        { value: "90%", label: "Cross-platform code reuse" },
-        { value: "20%", label: "Lower analysis latency" },
-        { value: "1 codebase", label: "Web + mobile" },
+        { value: "Offline", label: "Fully local-first" },
+        { value: "SQLite", label: "Local data + history" },
+        { value: "API 26+", label: "Android 8.0 and up" },
       ],
     },
   },
 ];
 
-/** Special "Research" card — gets a distinct visual treatment in the Projects grid. */
+/** Published research — shown in the Projects section and the Achievements section. */
 export const research = {
   badge: "Published Research",
-  title: "Parkinson's Symptom Detection via ML",
+  title: "Parkinson's Symptom Detection using Machine Learning",
   type: "Research Paper",
   description:
-    "Feature-engineered tremor and tapping data to detect Parkinson's symptoms. Trained, evaluated, and published.",
+    "A machine-learning approach to early Parkinson's screening from movement signals. I engineered features from tremor and finger-tapping data — frequency, amplitude, rhythm and inter-tap variability — and trained classifiers to separate Parkinsonian patterns from healthy motion. The model was evaluated, written up, and published.",
+  points: [
+    "Feature engineering on tremor and tapping signals — extracting frequency, amplitude and timing-variability features that carry the diagnostic signal.",
+    "Trained and compared classification models, tuning for sensitivity so early/subtle cases aren't missed.",
+    "Full research workflow — problem framing, dataset preparation, evaluation, and a published, peer-reviewed write-up.",
+  ],
   highlight: "Published & peer-reviewed",
-  link: "YOUR_PAPER_LINK", // TODO: add DOI / publication link
+  link: "https://github.com/nikitha11925/NeuroTrack",
+  pdf: "/paper.pdf",
+  screenshot: "/parkinsons.png",
 };
 
-/** RPG-style character card shown in the About section. */
-export const characterCard = {
-  name: "NIKITHA D",
-  subtitle: "Full-Stack · ML · UX",
-  meta: [
-    { label: "CLASS", value: "Engineer / Maker" },
-    { label: "LEVEL", value: "2nd year" },
-    { label: "BASE", value: "Bangalore" },
-    { label: "STATUS", value: "Building" },
-  ],
-  stats: [
-    { label: "Creativity", value: 90 },
-    { label: "Debug-fu", value: 85 },
-    { label: "Frontend", value: 82 },
-    { label: "Backend", value: 75 },
-    { label: "ML/AI", value: 70 },
-    { label: "Math", value: null as number | null, note: "returning" },
-  ],
-};
+/** Education — shown as a glowing card in the About section. */
+export const education = [
+  {
+    school: "Dayananda Sagar University",
+    location: "Harohalli, Karnataka, India",
+    degree: "B.Tech in Computer Science and Engineering",
+    period: "Aug 2023 – July 2027",
+    score: "CGPA: 8.51",
+  },
+  {
+    school: "Dayananda Sagar PU College",
+    location: "Kumaraswamy Layout, Karnataka, India",
+    degree: "PCMC (Pre-University)",
+    period: "Aug 2021 – April 2023",
+    score: "Percentage: 92.3%",
+  },
+];
 
 export const bio = [
-  "I'm Nikitha — a second-year CS engineer at Dayananda Sagar University, Bangalore. I build full-stack systems, train ML models, and somehow also design dresses and solder jewellery.",
-  "I came to tech because it's where math, creativity, and the future collide. I'm fascinated by AIML — the kind of problems that sit at the edge of what machines can understand. I published a research paper on Parkinson's symptom detection using tremor and tapping data. I vibe-code. I debug obsessively. I care deeply about how things look AND how they work.",
-  "Math and I had a complicated relationship — I stepped away for a few years, and now I'm finding my way back to it. Slowly, deliberately. That's the kind of person I am: I return to things that matter.",
+  "I'm Nikitha — a final-year Computer Science engineering student at Dayananda Sagar University, Bangalore. I design and build full-stack web applications and machine learning systems, carrying them from initial concept through to deployment.",
+  "My work spans backend and distributed systems, applied machine learning, and product-focused front-ends — Redis-backed queues and reactive services, AI integrations, geospatial ML, and a published research paper on Parkinson's symptom detection from tremor and tapping signals.",
+  "I care equally about engineering rigour and product experience — building systems that are correct, performant, and genuinely usable. Outside of engineering, I have a strong creative practice in art and design that shapes how I approach interfaces and user experience.",
 ];
 
 /** Tech-stack pill grid for the Skills section. */
 export const techStack: { category: string; items: string[] }[] = [
-  { category: "Languages", items: ["Java", "Python", "JavaScript", "TypeScript", "C"] },
-  { category: "Frameworks", items: ["React.js", "Spring Boot", "Next.js", "Tailwind CSS"] },
-  { category: "Data & ML", items: ["MySQL", "SQLite", "Python ML stack"] },
-  { category: "Tools", items: ["Git", "GitHub", "Android Studio", "VS Code", "Linux"] },
+  { category: "Languages", items: ["Java", "Python", "JavaScript", "TypeScript", "C", "SQL"] },
+  {
+    category: "Frameworks",
+    items: ["Spring Boot", "Spring WebFlux", "FastAPI", "React", "Next.js", "Tailwind CSS"],
+  },
+  { category: "Data & Cache", items: ["PostgreSQL", "MySQL", "Redis", "SQLite"] },
+  {
+    category: "ML & APIs",
+    items: ["Gemini API", "Google Maps API", "REST APIs", "WebSocket / STOMP"],
+  },
+  {
+    category: "DevOps & Infra",
+    items: ["Docker", "Kubernetes", "Helm", "Prometheus", "Grafana", "GitHub Actions"],
+  },
+  { category: "Tools", items: ["Git", "Android Studio", "VS Code", "Linux"] },
 ];
 
-/** Larger RPG skill bars (Skills section) — each has a one-line tooltip. */
-export const skillBars: { label: string; value: number; note: string }[] = [
-  { label: "UI/UX Design", value: 82, note: "Interfaces that feel intentional, not templated." },
-  { label: "Full-Stack Dev", value: 75, note: "Comfortable from the database up to the pixel." },
-  { label: "ML / AI", value: 68, note: "Feature engineering, training, evaluating, shipping." },
-  { label: "Feature Engineering", value: 88, note: "Turning messy raw signals into models that learn." },
-  { label: "Debugging", value: 90, note: "The 2am kind. I don't stop until it makes sense." },
-  { label: "Creative Direction", value: 92, note: "Designing the whole feel, not just the layout." },
-];
-
-/** Count-up stats row. Use `display` for non-numeric values. */
-export const stats: {
-  value: number | null;
-  display?: string;
-  decimals?: number;
-  label: string;
-}[] = [
-  { value: 2, label: "Deployed Projects" },
-  { value: 1, label: "Published Research Paper" },
-  { value: 8.51, decimals: 2, label: "CGPA" },
-  { value: null, display: "1st", label: "Fashion Design Contest Winner" },
+/** Specialization areas (Skills section) — concrete focus areas, not self-ratings. */
+export const specializations: { title: string; detail: string }[] = [
+  {
+    title: "Backend & Distributed Systems",
+    detail: "Reactive services, Redis-backed queues, retries and observability, deployed on Docker and Kubernetes.",
+  },
+  {
+    title: "Full-Stack Web Development",
+    detail: "End-to-end applications — Spring Boot REST APIs through to React and Next.js front-ends.",
+  },
+  {
+    title: "Applied Machine Learning",
+    detail: "Feature engineering, model training and evaluation, AI integrations, and published research.",
+  },
+  {
+    title: "UI / UX Engineering",
+    detail: "Accessible, performant interfaces built faithfully from design to code.",
+  },
 ];
 
 export const achievements: {
@@ -225,66 +248,60 @@ export const achievements: {
   venue: string;
   result: string;
   detail: string;
+  image?: string;
+  pdf?: string;
+  wide?: boolean;
 }[] = [
   {
     icon: "🥉",
     title: "IDEAVERSE'25",
     venue: "IEEE, DSU",
-    result: "3rd Place — AI solution for ethical social media",
-    detail: "Built with a team.",
+    result: "3rd Place — ethical social media platform",
+    detail: "Designed a machine learning solution for healthier social interaction, built with a team.",
+    image: "/ideaverse.png",
   },
   {
     icon: "🥈",
     title: "MAGNOVITE'25",
     venue: "Christ University",
     result: "2nd Place — Grid Restoration Challenge",
-    detail: "Circuit debugging, quizzes, on-the-spot problem solving.",
-  },
-  {
-    icon: "🏆",
-    title: "Fashion Design Contest",
-    venue: "",
-    result: "1st Place — Designed and conceptualised a full garment",
-    detail: "The only non-code win in the list. That's the point.",
+    detail: "Circuit debugging and applied problem-solving under time constraints.",
+    image: "/magnovite.png",
   },
   {
     icon: "📄",
     title: "Research Publication",
     venue: "",
-    result: "Parkinson's Symptom Detection via ML",
-    detail: "Feature-engineered tremor and tapping data. Trained and published.",
+    result: "Parkinson's Symptom Detection using Machine Learning",
+    detail: "Engineered features from tremor and tapping signals; trained, evaluated, and published the model.",
+    pdf: "/paper.pdf",
+    wide: true,
   },
 ];
 
-export const currently = {
-  doing: [
-    "Building CircleUp and PulseGate",
-    "Returning to mathematics (slowly, intentionally)",
-    "Exploring AIML and quantum computing concepts",
-    "Open to internships and interesting problems",
-  ],
-  into: [
-    "Soldering jewellery",
-    "Chess (looking for opponents)",
-    "Reading — ask me what",
-    "Fashion — always thinking about it",
-  ],
-};
+/** Hobbies — an intro line + a moving tape of craft images. */
+export const hobbiesIntro =
+  "Away from the screen I keep a hands-on creative practice. I paint watercolours and sketch, make clay bookmarks, soft-solder jewellery, and run a small business selling phone charms and hand-made custom keychains. I've won a fashion design contest and can design garments from a concept — and I play chess and read whenever I can.";
 
-/** Hobby cards that fan out when you hover the hero avatar. */
-export const hobbies: { icon: string; label: string }[] = [
-  { icon: "🎨", label: "Fashion designer — contest winner" },
-  { icon: "♟️", label: "Chess player" },
-  { icon: "💎", label: "Jewellery maker & ex-entrepreneur" },
-  { icon: "📚", label: "Currently reading math again" },
+export const hobbyImages: { src: string; alt: string }[] = [
+  { src: "/hobbies/art1.jpeg", alt: "Watercolour artwork" },
+  { src: "/hobbies/art2.jpeg", alt: "Watercolour artwork" },
+  { src: "/hobbies/chess.jpeg", alt: "Chess" },
+  { src: "/hobbies/keycharms.png", alt: "Hand-made phone charms" },
+  { src: "/hobbies/art3.jpeg", alt: "Sketch" },
+  { src: "/hobbies/bookmarks.png", alt: "Clay bookmarks" },
+  { src: "/hobbies/pendant.png", alt: "Soft-soldered pendant" },
+  { src: "/hobbies/art4.jpeg", alt: "Watercolour artwork" },
+  { src: "/hobbies/key.png", alt: "Custom keychain" },
+  { src: "/hobbies/art6.jpeg", alt: "Sketch" },
+  { src: "/hobbies/heart.png", alt: "Hand-made charm" },
+  { src: "/hobbies/art7.jpeg", alt: "Watercolour artwork" },
 ];
 
 export const contact = {
-  email: "nikithad11925@gmail.com",
+  email: "nikithad.11.9@gmail.com",
   phone: "+91 8050120456",
   location: "Bangalore, India",
-  linkedin: "YOUR_LINKEDIN_LINK", // TODO: add LinkedIn URL
-  github: "YOUR_GITHUB_LINK", // TODO: add GitHub profile URL
+  linkedin: "https://www.linkedin.com/in/nikitha-d-475048299/",
+  github: "https://github.com/nikitha11925",
 };
-
-export const terminalTagline = "thinking in N dimensions";

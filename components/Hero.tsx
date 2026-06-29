@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
-import HobbyTooltips from "@/components/HobbyTooltips";
-import { contact, terminalTagline } from "@/data/portfolio";
+import IconWall from "@/components/IconWall";
+import { contact } from "@/data/portfolio";
 import { isPlaceholder } from "@/lib/utils";
 
 /**
@@ -41,14 +41,12 @@ function useTypewriter(text: string, startDelay: number, speed: number, animate:
 }
 
 export default function Hero() {
-  const [hovered, setHovered] = useState(false);
   const reduce = useReducedMotion();
   const animate = !reduce;
 
-  // Typed-in copy. Delays are sequenced: greeting → name → echo tagline.
+  // Typed-in copy. Delays are sequenced: greeting → name.
   const bonjour = useTypewriter("Bonjour!", 600, 70, animate);
   const here = useTypewriter("Nikitha here...", 1300, 55, animate);
-  const echo = useTypewriter(terminalTagline, 2350, 45, animate);
 
   const githubHref = isPlaceholder(contact.github) ? "#" : contact.github;
 
@@ -70,9 +68,12 @@ export default function Hero() {
     // Flat near-black section — no canvas, no background gradient (by design).
     <section
       id="top"
-      className="relative flex min-h-[100svh] flex-col items-center justify-center gap-14 px-6 pb-16 pt-28"
+      className="relative flex min-h-[100svh] flex-col items-center justify-center gap-14 overflow-hidden px-6 pb-16 pt-28 sm:px-10 lg:px-16"
     >
-      <div className="grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[1fr_auto] lg:gap-20">
+      {/* Raining tech-icon field over the right ~60%, behind the hero content */}
+      <IconWall />
+
+      <div className="relative z-10 grid w-full max-w-6xl items-center gap-12 lg:grid-cols-[1fr_auto] lg:gap-20">
         {/* ── Left: terminal prompt + greeting speech bubble ── */}
         <div className="flex flex-col items-start">
           <motion.p className="mb-5 font-mono text-[13px] text-gold" {...reveal(0.2, 0)}>
@@ -80,7 +81,7 @@ export default function Hero() {
           </motion.p>
 
           <motion.div
-            className="speech-bubble relative max-w-md border border-border bg-surface px-6 py-5"
+            className="speech-bubble relative max-w-xl border border-border bg-surface px-7 py-6"
             {...(reduce
               ? { initial: false }
               : {
@@ -94,11 +95,11 @@ export default function Hero() {
                 })}
           >
             <p className="font-mono text-cream">
-              <span className="block text-[clamp(2.25rem,7vw,3.5rem)] leading-[1.05]">
+              <span className="block text-[clamp(1.75rem,4.5vw,2.75rem)] leading-tight">
                 {bonjour}
                 {bonjour.length < "Bonjour!".length && <span className="cursor-blink" />}
               </span>
-              <span className="mt-1 block text-[clamp(1.4rem,5vw,2.25rem)] leading-[1.1] text-cream/85">
+              <span className="mt-1.5 block text-[clamp(1.1rem,3vw,1.6rem)] leading-tight text-cream/75">
                 {here}
                 {bonjour.length === "Bonjour!".length && here.length < "Nikitha here...".length && (
                   <span className="cursor-blink" />
@@ -106,6 +107,15 @@ export default function Hero() {
               </span>
             </p>
           </motion.div>
+
+          {/* Role / status line — contrasting pill so it stands out */}
+          <motion.p
+            className="mt-6 inline-flex items-center gap-2 border border-gold/40 bg-gold/10 px-3.5 py-1.5 font-mono text-sm text-cream"
+            {...reveal(1.1, 0)}
+          >
+            <span className="text-gold">▸</span>
+            Final-year Computer Science student at DSU
+          </motion.p>
         </div>
 
         {/* ── Right: glowing gold portal, pixel girl emerging out the top ── */}
@@ -123,11 +133,7 @@ export default function Hero() {
                 },
               })}
         >
-          <div
-            className="group relative"
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-          >
+          <div className="relative">
             {/* Breathing gold halo behind the TV for depth (solid colour + blur,
                 not a section background). */}
             <div
@@ -138,10 +144,7 @@ export default function Hero() {
             {/* The neon TV — a 5:4 tube, deliberately SHORTER than the square
                 portrait so she pops out the top. overflow-visible lets her breach
                 the frame; the black screen below stays a retro CRT. */}
-            <div
-              data-hover
-              className="neon-frame relative aspect-[5/4] w-[clamp(260px,72vw,340px)] overflow-visible bg-[#050505]"
-            >
+            <div className="neon-frame relative aspect-[5/4] w-[clamp(260px,72vw,340px)] overflow-visible bg-[#050505]">
               {/* The waving pixel girl. Square box anchored to the TV's base, so
                   the bottom of the box is the screen floor and her head/headphones
                   rise above the top edge. */}
@@ -154,13 +157,10 @@ export default function Hero() {
                   sizes="(max-width: 1024px) 72vw, 340px"
                   className="portal-screen-img select-none object-contain"
                 />
-              </div>
-
-              {/* Scanlines + sweeping shimmer — clipped to the screen, so the
-                  popped-out head above the frame stays clean. */}
-              <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
-                <div className="crt-scanlines absolute inset-0" />
-                <div className="crt-shimmer" />
+                {/* Retro scanlines over the WHOLE portrait (incl. the popped-out
+                    head), masked to her alpha so they never touch transparent
+                    pixels or the black screen behind her. */}
+                <div className="retro-lines pointer-events-none absolute inset-0" />
               </div>
 
               {/* Retro power indicator */}
@@ -169,26 +169,13 @@ export default function Hero() {
                 on air
               </span>
             </div>
-
-            {/* Hobby cards fan out around the TV on hover */}
-            <HobbyTooltips show={hovered} />
-
-            <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-label text-muted">
-              hover me
-            </p>
           </div>
         </motion.div>
       </div>
 
-      {/* ── Below: neon terminal echo line + CTAs ── */}
-      <motion.div className="flex w-full max-w-6xl flex-col items-center gap-7" {...reveal(2.2)}>
-        <p className="text-center font-mono text-sm sm:text-base">
-          <span className="text-muted">nikitha@dev$ echo </span>
-          <span className="neon-gold animate-neon-flicker">&quot;{echo}&quot;</span>
-          {echo.length < terminalTagline.length && <span className="cursor-blink" />}
-        </p>
-
-        <div className="flex flex-wrap items-center justify-center gap-4">
+      {/* ── Below: call-to-action buttons ── */}
+      <motion.div className="relative z-10 flex w-full max-w-6xl flex-col items-start gap-7" {...reveal(1.4)}>
+        <div className="flex flex-wrap items-center justify-start gap-4">
           <a
             href="#projects"
             data-hover
